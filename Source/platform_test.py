@@ -16,6 +16,14 @@ VIEWPORT_MARGIN = 40
 MOVEMENT_SPEED = 5
 
 
+def read_sprite_list(grid, sprite_list):
+    for row in grid:
+        for grid_location in row:
+            if grid_location.tile is not None:
+                tile_sprite = arcade.Sprite(grid_location.tile.source, SPRITE_SCALING)
+                tile_sprite.center_x = grid_location.center_x * SPRITE_SCALING
+                tile_sprite.center_y = grid_location.center_y * SPRITE_SCALING
+                sprite_list.append(tile_sprite)
 
 
 class MyGame(arcade.Window):
@@ -41,53 +49,40 @@ class MyGame(arcade.Window):
         # Set up the player
         self.score = 0
         self.player_sprite = None
-        self.wall_list = None
-        self.physics_engine = None
+        self.platform_list = None
+        self.water_background_list = None
+        self.objects_list = None
+        self.second_list = None
         self.view_bottom = 0
         self.view_left = 0
         self.my_map = None
-
-    def read_sprite_list(self, grid, sprite_list):
-        row_count = 0
-        for row in grid:
-            column_count = 0
-            for tile_id in row:
-                key = str(tile_id)
-                if key in self.my_map.global_tile_set:
-                    tile_info = self.my_map.global_tile_set[str(tile_id)]
-                    tile_sprite = arcade.Sprite(tile_info.source)
-
-                    tile_sprite.center_x = (column_count - row_count) * (self.my_map.tilewidth // 2)
-                    tile_sprite.center_y = 1000 - (column_count + row_count) * (self.my_map.tileheight // 2)
-
-                    sprite_list.append(tile_sprite)
-                column_count += 1
-            row_count += 1
 
     def setup(self):
         """ Set up the game and initialize the variables. """
 
         # Sprite lists
         self.all_sprites_list = arcade.SpriteList()
-        self.wall_list = arcade.SpriteList()
-        self.floor_list = arcade.SpriteList()
+        self.platform_list = arcade.SpriteList()
+        self.plant_list = arcade.SpriteList()
+        self.water_background_list = arcade.SpriteList()
+        self.objects_list = arcade.SpriteList()
+        self.second_list = arcade.SpriteList()
 
         # Set up the player
         self.score = 0
-        self.player_sprite = arcade.Sprite("../../images/character.png", 0.4)
+        self.player_sprite = arcade.Sprite("../images/character.png", 0.4)
         self.player_sprite.center_x = 64
         self.player_sprite.center_y = 270
         self.all_sprites_list.append(self.player_sprite)
 
-        self.physics_engine = arcade.PhysicsEngineSimple(self.player_sprite, self.wall_list)
+        self.my_map = arcade.read_tiled_map('../Tiled/nauticalMap.tmx')
 
-        self.my_map = arcade.read_tiled_map('../Tiled/tiledTemplate_isometric.tmx')
-
-        self.read_sprite_list(self.my_map.layers["Floor"], self.floor_list)
-        self.read_sprite_list(self.my_map.layers["Walls"], self.wall_list)
+        read_sprite_list(self.my_map.layers["plants"], self.plant_list)
+        read_sprite_list(self.my_map.layers["platforms"], self.platform_list)
+        read_sprite_list(self.my_map.layers["water_background"], self.water_background_list)
 
         # Set the background color
-        arcade.set_background_color(arcade.color.AMAZON)
+        arcade.set_background_color(self.my_map.backgroundcolor)
 
         # Set the viewport boundaries
         # These numbers set where we have 'scrolled' to.
@@ -103,9 +98,15 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         # Draw all the sprites.
-        self.floor_list.draw()
-        self.wall_list.draw()
+        self.water_background_list.draw()
+        self.platform_list.draw()
+        self.plant_list.draw()
+        self.objects_list.draw()
         self.player_sprite.draw()
+        self.second_list.draw()
+
+        arcade.draw_line(0, 0, 1200, 0, arcade.color.BLACK, 3)
+        arcade.draw_line(0, 0, 0, 1200, arcade.color.BLACK, 3)
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -132,7 +133,7 @@ class MyGame(arcade.Window):
 
         # Call update on all sprites (The sprites don't do much in this
         # example though.)
-        self.physics_engine.update()
+        self.player_sprite.update()
 
         # --- Manage Scrolling ---
 
@@ -176,6 +177,7 @@ def main():
     window = MyGame(SCREEN_WIDTH, SCREEN_HEIGHT)
     window.setup()
     arcade.run()
+
 
 if __name__ == "__main__":
     main()
