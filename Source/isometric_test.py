@@ -16,6 +16,16 @@ VIEWPORT_MARGIN = 40
 MOVEMENT_SPEED = 5
 
 
+def read_sprite_list(grid, sprite_list):
+    for row in grid:
+        for grid_location in row:
+            if grid_location.tile is not None:
+                tile_sprite = arcade.Sprite(grid_location.tile.source, SPRITE_SCALING)
+                tile_sprite.center_x = grid_location.center_x * SPRITE_SCALING
+                tile_sprite.center_y = grid_location.center_y * SPRITE_SCALING
+                sprite_list.append(tile_sprite)
+
+
 class MyGame(arcade.Window):
     """ Main application class. """
 
@@ -47,23 +57,6 @@ class MyGame(arcade.Window):
         self.view_left = 0
         self.my_map = None
 
-    def read_sprite_list(self, grid, sprite_list):
-        row_count = 0
-        for row in grid:
-            column_count = 0
-            for tile_id in row:
-                key = str(tile_id)
-                if key in self.my_map.global_tile_set:
-                    tile_info = self.my_map.global_tile_set[str(tile_id)]
-                    tile_sprite = arcade.Sprite(tile_info.source)
-
-                    tile_sprite.center_x = (column_count - row_count) * (self.my_map.tilewidth // 2)
-                    tile_sprite.center_y = 1000 - (column_count + row_count) * (self.my_map.tileheight // 2)
-
-                    sprite_list.append(tile_sprite)
-                column_count += 1
-            row_count += 1
-
     def setup(self):
         """ Set up the game and initialize the variables. """
 
@@ -84,11 +77,11 @@ class MyGame(arcade.Window):
 
         self.my_map = arcade.read_tiled_map('../Tiled/tiledTemplate_isometric.tmx')
 
-        self.read_sprite_list(self.my_map.layers["Floor"], self.floor_list)
-        self.read_sprite_list(self.my_map.layers["Walls"], self.wall_list)
-        self.read_sprite_list(self.my_map.layers["Wood"], self.wood_list)
-        self.read_sprite_list(self.my_map.layers["Objects"], self.objects_list)
-        self.read_sprite_list(self.my_map.layers["Second"], self.second_list)
+        read_sprite_list(self.my_map.layers["Floor"], self.floor_list)
+        # read_sprite_list(self.my_map.layers["Walls"], self.wall_list)
+        # read_sprite_list(self.my_map.layers["Wood"], self.wood_list)
+        # read_sprite_list(self.my_map.layers["Objects"], self.objects_list)
+        # read_sprite_list(self.my_map.layers["Second"], self.second_list)
 
         # Set the background color
         arcade.set_background_color(self.my_map.backgroundcolor)
