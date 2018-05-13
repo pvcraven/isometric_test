@@ -15,7 +15,7 @@ VIEWPORT_MARGIN = 40
 
 MOVEMENT_SPEED = 5
 MAP_WIDTH = 5
-MAP_HEIGHT = 5
+MAP_HEIGHT = 15
 TILE_WIDTH = 64
 TILE_HEIGHT = 64
 
@@ -24,7 +24,6 @@ def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight)
     screen_x = tilewidth * (tile_x) // 2 + height * tilewidth // 2 - tile_y  * tilewidth // 2
     screen_y = (height - tile_y - 1) * tileheight // 2 + width * tileheight // 2 - tile_x * tileheight // 2
     return screen_x, screen_y
-
 
 
 def read_sprite_list(grid, sprite_list):
@@ -36,12 +35,6 @@ def read_sprite_list(grid, sprite_list):
                 tile_sprite.center_y = grid_location.center_y * SPRITE_SCALING
                 # print(f"({tile_sprite.center_x:4}, {tile_sprite.center_y:4})")
                 sprite_list.append(tile_sprite)
-
-
-# def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight):
-#     screen_x = tilewidth // 2 + tilewidth * (width - 1) + tile_x * tilewidth - tile_y * tilewidth
-#     screen_y = tileheight // 2 + tileheight * (width - 1) + tileheight * (height - 1) - tile_x * tileheight - tile_y * tileheight
-#     return screen_x, screen_y
 
 
 class MyGame(arcade.Window):
@@ -159,38 +152,6 @@ class MyGame(arcade.Window):
         end_y = 0
         arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
 
-        # Top left
-        start_x = 0
-        start_y = tileheight // 2 + tileheight * (height - 1)
-        end_x = tilewidth // 2 + tilewidth * (width - 1)
-        end_y = tileheight + tileheight * (width - 1) + tileheight * (height - 1)
-        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
-
-        # Bottom right
-        start_x = tilewidth + tilewidth * (width - 1) + tilewidth * (height - 1)
-        start_y = tileheight // 2 + tileheight * (width - 1)
-        end_x = tilewidth // 2 + tilewidth * (height - 1)
-        end_y = 0
-        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
-
-        # Bottom left
-        start_x = tilewidth // 2 + tilewidth * (height - 1)
-        start_y = 0
-
-        end_x = 0
-        end_y = tileheight // 2 + tileheight * (height - 1)
-
-        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.RED, 2)
-
-        # Top right
-        end_x = tilewidth + tilewidth * (width - 1) + tilewidth * (height - 1)
-        end_y = tileheight // 2 + tileheight * (width - 1)
-
-        start_x = tilewidth // 2 + tilewidth * (width - 1)
-        start_y = tileheight + tileheight * (width - 1) + tileheight * (height - 1)
-
-        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.GREEN, 2)
-
         # Gridlines 1
         for tile_row in range(-1, height):
             tile_x = 0
@@ -203,16 +164,18 @@ class MyGame(arcade.Window):
 
             arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE)
 
-        # for tile_column in range(-1, width):
-        #     tile_y = 0
-        #     start_x, start_y = get_screen_coordinates(tile_column, tile_y, width, height, tilewidth, tileheight)
-        #     tile_y = height - 1
-        #     end_x, end_y = get_screen_coordinates(tile_column, tile_y, width, height, tilewidth, tileheight)
-        #
-        #     start_x += tilewidth // 2
-        #     end_y -= tileheight // 2
-        #
-        #     arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE)
+        # Gridlines 2
+        for tile_column in range(-1, width):
+            tile_y = 0
+            start_x, start_y = get_screen_coordinates(tile_column, tile_y, width, height, tilewidth, tileheight)
+            tile_y = height - 1
+            end_x, end_y = get_screen_coordinates(tile_column, tile_y, width, height, tilewidth, tileheight)
+
+            start_x += tilewidth // 2
+            end_y -= tileheight // 2
+
+            arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE)
+
 
         for tile_x in range(width):
             for tile_y in range(height):
