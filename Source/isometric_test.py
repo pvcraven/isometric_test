@@ -4,16 +4,27 @@
 import arcade
 import os
 
-SPRITE_SCALING = 0.5
+SPRITE_SCALING = 1
 
-SCREEN_WIDTH = 1200
-SCREEN_HEIGHT = 800
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
 
 # How many pixels to keep as a minimum margin between the character
 # and the edge of the screen.
 VIEWPORT_MARGIN = 40
 
 MOVEMENT_SPEED = 5
+MAP_WIDTH = 5
+MAP_HEIGHT = 5
+TILE_WIDTH = 64
+TILE_HEIGHT = 64
+
+
+def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight):
+    screen_x = tilewidth * (tile_x) // 2 + height * tilewidth // 2 - tile_y  * tilewidth // 2
+    screen_y = (height - tile_y - 1) * tileheight // 2 + width * tileheight // 2 - tile_x * tileheight // 2
+    return screen_x, screen_y
+
 
 
 def read_sprite_list(grid, sprite_list):
@@ -23,7 +34,14 @@ def read_sprite_list(grid, sprite_list):
                 tile_sprite = arcade.Sprite(grid_location.tile.source, SPRITE_SCALING)
                 tile_sprite.center_x = grid_location.center_x * SPRITE_SCALING
                 tile_sprite.center_y = grid_location.center_y * SPRITE_SCALING
+                # print(f"({tile_sprite.center_x:4}, {tile_sprite.center_y:4})")
                 sprite_list.append(tile_sprite)
+
+
+# def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight):
+#     screen_x = tilewidth // 2 + tilewidth * (width - 1) + tile_x * tilewidth - tile_y * tilewidth
+#     screen_y = tileheight // 2 + tileheight * (width - 1) + tileheight * (height - 1) - tile_x * tileheight - tile_y * tileheight
+#     return screen_x, screen_y
 
 
 class MyGame(arcade.Window):
@@ -71,8 +89,8 @@ class MyGame(arcade.Window):
         # Set up the player
         self.score = 0
         self.player_sprite = arcade.Sprite("../images/character.png", 0.4)
-        self.player_sprite.center_x = 64
-        self.player_sprite.center_y = 270
+        self.player_sprite.center_x = 0
+        self.player_sprite.center_y = 0
         self.all_sprites_list.append(self.player_sprite)
 
         self.my_map = arcade.read_tiled_map('../Tiled/tiledTemplate_isometric.tmx')
@@ -100,12 +118,122 @@ class MyGame(arcade.Window):
         arcade.start_render()
 
         # Draw all the sprites.
-        self.floor_list.draw()
-        self.wall_list.draw()
-        self.wood_list.draw()
-        self.objects_list.draw()
-        self.player_sprite.draw()
-        self.second_list.draw()
+        # self.floor_list.draw()
+        # self.wall_list.draw()
+        # self.wood_list.draw()
+        # self.objects_list.draw()
+        # self.player_sprite.draw()
+        # self.second_list.draw()
+
+        # self.my_map.width = 2
+        # for row_number in range(self.my_map.width):
+        #
+        #     start_x = self.my_map.tilewidth // 2 * self.my_map.width + self.my_map.tilewidth // 2 * row_number
+        #     start_y = self.my_map.tilewidth // 2 * row_number
+        #     end_x = self.my_map.tilewidth // 2 * row_number
+        #     end_y = self.my_map.tileheight // 2 * self.my_map.height + self.my_map.tilewidth // 2 * row_number
+        #     arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
+        #
+        # start_x = self.my_map.tilewidth // 2 * self.my_map.width
+        # start_y = 0
+        # end_x = self.my_map.tilewidth // 2 * self.my_map.width * 2
+        # end_y = self.my_map.tileheight // 2 * self.my_map.height
+        # arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.LIGHT_CYAN, 2)
+
+        tilewidth = TILE_WIDTH
+        tileheight = TILE_HEIGHT
+        width = MAP_WIDTH
+        height = MAP_HEIGHT
+
+        # Axis
+        start_x = 0
+        start_y = 0
+        end_x = 0
+        end_y = 1000
+        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
+
+        # Axis
+        start_x = 0
+        start_y = 0
+        end_x = 1000
+        end_y = 0
+        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
+
+        # Top left
+        start_x = 0
+        start_y = tileheight // 2 + tileheight * (height - 1)
+        end_x = tilewidth // 2 + tilewidth * (width - 1)
+        end_y = tileheight + tileheight * (width - 1) + tileheight * (height - 1)
+        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
+
+        # Bottom right
+        start_x = tilewidth + tilewidth * (width - 1) + tilewidth * (height - 1)
+        start_y = tileheight // 2 + tileheight * (width - 1)
+        end_x = tilewidth // 2 + tilewidth * (height - 1)
+        end_y = 0
+        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
+
+        # Bottom left
+        start_x = tilewidth // 2 + tilewidth * (height - 1)
+        start_y = 0
+
+        end_x = 0
+        end_y = tileheight // 2 + tileheight * (height - 1)
+
+        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.RED, 2)
+
+        # Top right
+        end_x = tilewidth + tilewidth * (width - 1) + tilewidth * (height - 1)
+        end_y = tileheight // 2 + tileheight * (width - 1)
+
+        start_x = tilewidth // 2 + tilewidth * (width - 1)
+        start_y = tileheight + tileheight * (width - 1) + tileheight * (height - 1)
+
+        arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.GREEN, 2)
+
+        # Gridlines 1
+        for tile_row in range(-1, height):
+            tile_x = 0
+            start_x, start_y = get_screen_coordinates(tile_x, tile_row, width, height, tilewidth, tileheight)
+            tile_x = width - 1
+            end_x, end_y = get_screen_coordinates(tile_x, tile_row, width, height, tilewidth, tileheight)
+
+            start_x -= tilewidth // 2
+            end_y -= tileheight // 2
+
+            arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE)
+
+        # for tile_column in range(-1, width):
+        #     tile_y = 0
+        #     start_x, start_y = get_screen_coordinates(tile_column, tile_y, width, height, tilewidth, tileheight)
+        #     tile_y = height - 1
+        #     end_x, end_y = get_screen_coordinates(tile_column, tile_y, width, height, tilewidth, tileheight)
+        #
+        #     start_x += tilewidth // 2
+        #     end_y -= tileheight // 2
+        #
+        #     arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE)
+
+        for tile_x in range(width):
+            for tile_y in range(height):
+                screen_x, screen_y = get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight)
+                if tile_x == 0 and tile_y == 0:
+                    color = arcade.color.GREEN
+                elif tile_x == 1 and tile_y == 0:
+                    color = arcade.color.AFRICAN_VIOLET
+                else:
+                    color = arcade.color.RED
+                arcade.draw_point(screen_x, screen_y, color, 3)
+
+    def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
+        screen_x = x + self.view_left
+        screen_y = y + self.view_bottom
+        tile_width_half = self.my_map.tilewidth
+        tile_height_half = self.my_map.tileheight
+        map_x = (screen_x / tile_width_half + (screen_y / tile_height_half)) / 2
+        map_y = (screen_y / tile_height_half - (screen_x / tile_width_half)) / 2
+
+        # print(f"({screen_x}, {screen_y}) -> ({map_x:.2}, {map_y:.2})")
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
