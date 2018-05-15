@@ -14,14 +14,15 @@ SCREEN_HEIGHT = 600
 VIEWPORT_MARGIN = 40
 
 MOVEMENT_SPEED = 5
-MAP_WIDTH = 5
-MAP_HEIGHT = 15
-TILE_WIDTH = 64
+
+MAP_WIDTH = 3
+MAP_HEIGHT = 3
+TILE_WIDTH = 128
 TILE_HEIGHT = 64
 
 
 def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight):
-    screen_x = tilewidth * (tile_x) // 2 + height * tilewidth // 2 - tile_y  * tilewidth // 2
+    screen_x = tilewidth * tile_x // 2 + height * tilewidth // 2 - tile_y  * tilewidth // 2
     screen_y = (height - tile_y - 1) * tileheight // 2 + width * tileheight // 2 - tile_x * tileheight // 2
     return screen_x, screen_y
 
@@ -152,6 +153,26 @@ class MyGame(arcade.Window):
         end_y = 0
         arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE, 2)
 
+        # x Tic Marks
+        for x in range(0, 1000, 64):
+            start_y = -10
+            end_y = 0
+            arcade.draw_line(x, start_y, x, end_y, arcade.color.WHITE, 2)
+            text_y = -25
+            arcade.draw_text(f"{x}", x, text_y, arcade.color.WHITE, 12, width=200, align="center",
+                         anchor_x="center")
+
+        # x Tic Marks
+        for y in range(0, 1000, 64):
+            start_x = -10
+            end_x = 0
+
+            arcade.draw_line(start_x, y, end_x, y, arcade.color.WHITE, 2)
+            text_x = -50
+            arcade.draw_text(f"{y}", text_x, y - 4, arcade.color.WHITE, 12, width=70, align="right",
+                         anchor_x="center")
+
+
         # Gridlines 1
         for tile_row in range(-1, height):
             tile_x = 0
@@ -176,7 +197,7 @@ class MyGame(arcade.Window):
 
             arcade.draw_line(start_x, start_y, end_x, end_y, arcade.color.WHITE)
 
-
+        print()
         for tile_x in range(width):
             for tile_y in range(height):
                 screen_x, screen_y = get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight)
@@ -187,16 +208,44 @@ class MyGame(arcade.Window):
                 else:
                     color = arcade.color.RED
                 arcade.draw_point(screen_x, screen_y, color, 3)
+                arcade.draw_text(f"{tile_x}, {tile_y}", screen_x, screen_y, arcade.color.WHITE, 12, width=200, align="center", anchor_x="center")
+                print(f"{tile_x}, {tile_y} => {screen_x:3}, {screen_y:3}")
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
         screen_x = x + self.view_left
         screen_y = y + self.view_bottom
-        tile_width_half = self.my_map.tilewidth
-        tile_height_half = self.my_map.tileheight
-        map_x = (screen_x / tile_width_half + (screen_y / tile_height_half)) / 2
-        map_y = (screen_y / tile_height_half - (screen_x / tile_width_half)) / 2
+
+        grid_x = screen_x // TILE_WIDTH
+        grid_y = screen_y // TILE_HEIGHT
+        point_x = (screen_x % TILE_WIDTH) - (TILE_WIDTH / 2)
+        point_y = (screen_y % TILE_HEIGHT) - (TILE_HEIGHT / 2)
+
+
+        print(f"{screen_x}, {screen_y} -> {point_x}, {point_y}")
 
         # print(f"({screen_x}, {screen_y}) -> ({map_x:.2}, {map_y:.2})")
+
+        """
+function global.XYtoIsoTile(x,y)
+  local isoW,isoH = cGenericTile.getSize()
+  local gridX,gridY = math.floor(x/isoW)+1,math.floor(y/isoH)+1
+  --Get the coordinates in relation to center of grid area
+  local pointX,pointY = (x%isoW)-(isoW/2),(y%isoH)-(isoH/2)
+
+  if math.abs(pointY) > ((isoH/2) - (((isoH/2)*math.abs(pointX))/(isoW/2))) then
+    if pointX >= 0 and pointY >= 0 then
+      gridX,gridY = gridX,gridY+1/2
+    elseif pointX >= 0 and pointY < 0 then
+      gridX,gridY = gridX,gridY-1/2
+    elseif pointX < 0 and pointY >= 0 then
+      gridX,gridY = gridX-1,gridY+1/2
+    else --if pointX < 0 and pointY < 0 then
+      gridX,gridY = gridX-1,gridY-1/2
+    end
+  end
+  return gridX,gridY
+end
+        """
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """
@@ -256,6 +305,8 @@ class MyGame(arcade.Window):
             changed = True
 
         if changed:
+            self.view_left = int(self.view_left)
+            self.view_bottom = int(self.view_bottom)
             arcade.set_viewport(self.view_left,
                                 SCREEN_WIDTH + self.view_left,
                                 self.view_bottom,
