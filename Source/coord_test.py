@@ -7,6 +7,18 @@ def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight)
     return screen_x, screen_y
 
 
+def get_tile_coordinates(x1, y1):
+    x2 = (x1 - y1) / 2
+    y2 = (x1 + y1) / 2
+    print(f"{x1}, {y1} => {x2}, {y2}")
+
+
+def get_tile_coordinates2(screen_x, screen_y, width=0, height=0, tilewidth=1, tileheight=1):
+    x2 = tilewidth * (screen_x / 2 - screen_y / 2) + width / 2
+    y2 = tileheight * (screen_x / 2 + screen_y / 2)
+    print(f"{screen_x}, {screen_y} => {x2}, {y2}")
+
+
 class TestScreenCoordinateMethods(unittest.TestCase):
 
     def test_01(self):

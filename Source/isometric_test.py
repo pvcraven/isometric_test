@@ -15,16 +15,23 @@ VIEWPORT_MARGIN = 40
 
 MOVEMENT_SPEED = 5
 
-MAP_WIDTH = 3
+MAP_WIDTH = 6
 MAP_HEIGHT = 3
 TILE_WIDTH = 128
-TILE_HEIGHT = 64
+TILE_HEIGHT = 128
 
 
 def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight):
     screen_x = tilewidth * tile_x // 2 + height * tilewidth // 2 - tile_y  * tilewidth // 2
     screen_y = (height - tile_y - 1) * tileheight // 2 + width * tileheight // 2 - tile_x * tileheight // 2
     return screen_x, screen_y
+
+
+def get_tile_coordinates(screen_x, screen_y, width=0, height=0, tilewidth=1, tileheight=1):
+    z = width / 2 + 0.5
+    x2 = ((1 / tilewidth) * (screen_x / 2 - screen_y / 2) + width / 2) * 2 - z
+    y2 = (height - 1) - ((1 / tileheight) * (screen_x / 2 + screen_y / 2) * 2 - z)
+    return x2, y2
 
 
 def read_sprite_list(grid, sprite_list):
@@ -209,7 +216,9 @@ class MyGame(arcade.Window):
                     color = arcade.color.RED
                 arcade.draw_point(screen_x, screen_y, color, 3)
                 arcade.draw_text(f"{tile_x}, {tile_y}", screen_x, screen_y, arcade.color.WHITE, 12, width=200, align="center", anchor_x="center")
-                print(f"{tile_x}, {tile_y} => {screen_x:3}, {screen_y:3}")
+
+                # sx, sy = get_tile_coordinates(screen_x, screen_y, width, height, tilewidth, tileheight)
+                # print(f"{tile_x}, {tile_y} => {screen_x:3}, {screen_y:3} => {sx}, {sy}")
 
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
         screen_x = x + self.view_left
@@ -224,28 +233,6 @@ class MyGame(arcade.Window):
         print(f"{screen_x}, {screen_y} -> {point_x}, {point_y}")
 
         # print(f"({screen_x}, {screen_y}) -> ({map_x:.2}, {map_y:.2})")
-
-        """
-function global.XYtoIsoTile(x,y)
-  local isoW,isoH = cGenericTile.getSize()
-  local gridX,gridY = math.floor(x/isoW)+1,math.floor(y/isoH)+1
-  --Get the coordinates in relation to center of grid area
-  local pointX,pointY = (x%isoW)-(isoW/2),(y%isoH)-(isoH/2)
-
-  if math.abs(pointY) > ((isoH/2) - (((isoH/2)*math.abs(pointX))/(isoW/2))) then
-    if pointX >= 0 and pointY >= 0 then
-      gridX,gridY = gridX,gridY+1/2
-    elseif pointX >= 0 and pointY < 0 then
-      gridX,gridY = gridX,gridY-1/2
-    elseif pointX < 0 and pointY >= 0 then
-      gridX,gridY = gridX-1,gridY+1/2
-    else --if pointX < 0 and pointY < 0 then
-      gridX,gridY = gridX-1,gridY-1/2
-    end
-  end
-  return gridX,gridY
-end
-        """
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed. """

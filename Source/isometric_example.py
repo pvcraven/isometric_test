@@ -20,6 +20,14 @@ def get_screen_coordinates(tile_x, tile_y, width, height, tilewidth, tileheight)
     return screen_x, screen_y
 
 
+def get_tile_coordinates(screen_x, screen_y, width, height, tilewidth, tileheight):
+    x2 = ((1 / tilewidth) * (screen_x / 2 - screen_y / 2) + width / 2) * 2 - (width / 2 + 0.5)
+    y2 = (height - 1) - ((1 / tileheight) * (screen_x / 2 + screen_y / 2) * 2 - (width / 2 + 0.5))
+    x2 = round(x2)
+    y2 = round(y2)
+    return x2, y2
+
+
 class MyGame(arcade.Window):
     """ Main application class. """
 
@@ -28,6 +36,8 @@ class MyGame(arcade.Window):
 
         self.axis_shape_list = None
         self.isometric_grid_shape_list = None
+        self.view_left = 0
+        self.view_bottom = 0
 
     def setup(self):
         """ Set up the game and initialize the variables. """
@@ -149,24 +159,25 @@ class MyGame(arcade.Window):
                                  width=200, align="center", anchor_x="center")
 
     def update(self, delta_time):
-        view_left = -50
-        view_bottom = -50
-        arcade.set_viewport(view_left,
-                            SCREEN_WIDTH + view_left,
-                            view_bottom,
-                            SCREEN_HEIGHT + view_bottom)
+        self.view_left = -50
+        self.view_bottom = -50
+        arcade.set_viewport(self.view_left,
+                            SCREEN_WIDTH + self.view_left,
+                            self.view_bottom,
+                            SCREEN_HEIGHT + self.view_bottom)
 
-    def on_mouse_press(self, x: float, y: float):
+    def on_mouse_press(self, x, y, button, key_modifiers):
         screen_x = x + self.view_left
         screen_y = y + self.view_bottom
 
-        grid_x = screen_x // TILE_WIDTH
-        grid_y = screen_y // TILE_HEIGHT
-        point_x = (screen_x % TILE_WIDTH) - (TILE_WIDTH / 2)
-        point_y = (screen_y % TILE_HEIGHT) - (TILE_HEIGHT / 2)
+        tilewidth = TILE_WIDTH
+        tileheight = TILE_HEIGHT
+        width = MAP_WIDTH
+        height = MAP_HEIGHT
 
+        map_x, map_y = get_tile_coordinates(screen_x, screen_y, width, height, tilewidth, tileheight)
 
-        # print(f"({screen_x}, {screen_y}) -> ({map_x:.2}, {map_y:.2})")
+        print(f"({screen_x}, {screen_y}) -> ({map_x}, {map_y})")
 
 
 def main():
