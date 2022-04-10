@@ -77,7 +77,21 @@ Result:
 Equations
 ~~~~~~~~~
 
-<Insert magic math stuff here.>
+.. math::
+
+    A = \frac{2 \cdot screenx}{tilewidth}
+    
+.. math::
+
+    B =  \frac{2 \cdot screeny}{tileheight}
+
+.. math::
+
+    tilex = \frac{2 \cdot height -1 - A - B + width}{2}
+
+.. math::
+
+    tiley = \frac{A - B - 1 + width}{2}
 
 Examples
 --------
